@@ -89,6 +89,23 @@ const processVacancy = async (): Promise<void> => {
   if (!(await isBotRunning())) return;
   respondButton.click();
 
+  const startedAt = Date.now();
+  while (Date.now() - startedAt < 5000) {
+    if (!(await isBotRunning())) return;
+    const relocation = document.querySelector<HTMLButtonElement>(
+      'button[data-qa="relocation-warning-confirm"]',
+    );
+    if (relocation && isVisible(relocation)) {
+      relocation.scrollIntoView({ block: "center" });
+      await sleep(300);
+      relocation.click();
+      await sleep(500);
+      break;
+    }
+
+    await sleep(300);
+  }
+
   const textarea = await waitForElement<HTMLTextAreaElement>(
     'textarea[data-qa="vacancy-response-popup-form-letter-input"]',
   );
