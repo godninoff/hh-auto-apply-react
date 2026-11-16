@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "HH Auto Apply",
+  "version": "2.0.0",
+  "description": "Автоматизация откликов на hh.ru",
+  "permissions": ["storage", "activeTab", "tabs"],
+  "host_permissions": ["https://hh.ru/*", "https://*.hh.ru/*"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "HH Auto Apply",
+    "default_popup": "index.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://hh.ru/*", "https://*.hh.ru/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
