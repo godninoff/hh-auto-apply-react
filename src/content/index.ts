@@ -27,6 +27,13 @@ const isVacancyResponsePage = (): boolean =>
 const isVacancyPage = (): boolean =>
   /\/vacancy\/\d+/.test(location.pathname) || isVacancyResponsePage();
 
+const isCaptchaVisible = (): boolean =>
+  [...document.querySelectorAll('h2[data-qa="title"]')].some(
+    (element) =>
+      isVisible(element) &&
+      element.textContent?.replace(/\s+/g, " ").trim() === "Пройдите капчу",
+  );
+
 const isQuestionnaireVisible = (): boolean => {
   return [...document.querySelectorAll("div")].some(
     (element) =>
@@ -92,6 +99,17 @@ const processVacancy = async (): Promise<void> => {
   const startedAt = Date.now();
   while (Date.now() - startedAt < 5000) {
     if (!(await isBotRunning())) return;
+
+    if (isCaptchaVisible()) {
+      await updateBotState({
+        hhAutoApplyRunning: false,
+        hhAutoApplyStatus:
+          "Обнаружена капча. Бот остановлен — решите её вручную и перезапустите.",
+      });
+      await sendVacancyResult("error", "Обнаружена капча после отклика.");
+      return;
+    }
+
     const relocation = document.querySelector<HTMLButtonElement>(
       'button[data-qa="relocation-warning-confirm"]',
     );
